@@ -16,7 +16,7 @@
       // On the desktop emulator you have to "right-click" to simulate a tap
       
       import { ARButton } from "https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js";
-
+      let myModel;
       let container;
       let camera, scene, renderer;
       let reticle;
@@ -37,6 +37,13 @@
           0.01,
           20
         );
+
+         const modelLoader = new THREE.GLTFLoader();
+         modelLoader.load('./aunkur.glb', function (gltf) {
+          myModel = gltf.scene;
+          myModel.scale.set(0.1, 0.1, 0.1); // Scale it down (or to your preferred size)
+         console.log("Model loaded");
+         });
 
         renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setPixelRatio(window.devicePixelRatio);
@@ -82,20 +89,18 @@
       }
 
       function onSelect() {        
-        if (reticle.visible) {
+        
           // cone added at the point of a hit test
           // replace the next lines to add your own object in space
-          const geometry = new THREE.CylinderBufferGeometry(0, 0.05, 0.2, 32);
-          const material = new THREE.MeshPhongMaterial({
-            color: 0xffffff * Math.random()
-          });
-          const mesh = new THREE.Mesh(geometry, material);
-          
-          // set the position of the cylinder based on where the reticle is          
-          mesh.position.setFromMatrixPosition(reticle.matrix);
-          mesh.quaternion.setFromRotationMatrix(reticle.matrix);
+          if (reticle.visible && myModel) {
+          // Clone the model
+          const clonedModel = myModel.clone();
 
-          scene.add(mesh); 
+          // Set the position of the model based on where the reticle is
+          clonedModel.position.setFromMatrixPosition(reticle.matrix);
+          clonedModel.quaternion.setFromRotationMatrix(reticle.matrix);
+
+          scene.add(clonedModel);
         }
       }
 
