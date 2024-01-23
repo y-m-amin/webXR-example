@@ -23,6 +23,7 @@
       let reticle;
       let controller;
       let loader; // we need to create a variable for a gltf model loader
+      let modelLoaded = false; 
 
       init();
       animate();
@@ -78,29 +79,29 @@
       
       // load the model
       // loader takes in a few arguments loader(model url, onLoad callback, onProgress callback, onError callback)
-			loader.load(
-				// model URL
-				modelUrl,
-				// onLoad callback: what get's called once the full model has loaded
-				function (gltf) {
-          // gltf.scene contains the Three.js object group that represents the 3d object of the model
-					scene.add(gltf.scene);
-          console.log("Model added to scene");
+			// loader.load(
+			// 	// model URL
+			// 	modelUrl,
+			// 	// onLoad callback: what get's called once the full model has loaded
+			// 	function (gltf) {
+      //     // gltf.scene contains the Three.js object group that represents the 3d object of the model
+			// 		scene.add(gltf.scene);
+      //     console.log("Model added to scene");
           
-          // you can optionally change the position of the model
-          // gltf.scene.position.z = -10; // negative Z moves the model in the opposite direction the camera is facing
-          // gltf.scene.position.y = 5; // positive Y moves the model up
-          // gltf.scene.position.x = 10; // positive X moves hte model to the right
-				},
-				// onProgress callback: optional function for showing progress on model load
-				function (xhr) {
-		      // console.log((xhr.loaded / xhr.total * 100) + '% loaded' );
-	      },
-				// onError callback
-				function (error) {
-					console.error(error);
-				}
-			);
+      //     // you can optionally change the position of the model
+      //     // gltf.scene.position.z = -10; // negative Z moves the model in the opposite direction the camera is facing
+      //     // gltf.scene.position.y = 5; // positive Y moves the model up
+      //     // gltf.scene.position.x = 10; // positive X moves hte model to the right
+			// 	},
+			// 	// onProgress callback: optional function for showing progress on model load
+			// 	function (xhr) {
+		  //     // console.log((xhr.loaded / xhr.total * 100) + '% loaded' );
+	    //   },
+			// 	// onError callback
+			// 	function (error) {
+			// 		console.error(error);
+			// 	}
+			// );
 
       }
 
@@ -126,15 +127,26 @@
         
           // cone added at the point of a hit test
           // replace the next lines to add your own object in space
-          if (reticle.visible && myModel) {
-          // Clone the model
-          const clonedModel = myModel.clone();
+          
+        if (reticle.visible && !modelLoaded) {
+          modelLoaded = true; // Set the flag to true
 
-          // Set the position of the model based on where the reticle is
-          clonedModel.position.setFromMatrixPosition(reticle.matrix);
-          clonedModel.quaternion.setFromRotationMatrix(reticle.matrix);
-
-          scene.add(clonedModel);
+          // Load the model only when the reticle is visible and the model is not loaded yet
+          const loader = new THREE.GLTFLoader();
+          loader.load(
+            './aunkur.glb', // Path to your GLTF model
+            function (gltf) {
+              const model = gltf.scene;
+              model.position.setFromMatrixPosition(reticle.matrix);
+              model.quaternion.setFromRotationMatrix(reticle.matrix);
+              scene.add(model);
+              console.log("Model added to scene");
+            },
+            undefined,
+            function (error) {
+              console.error(error);
+            }
+          );
         }
       }
 
