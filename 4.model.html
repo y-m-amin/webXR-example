@@ -14,7 +14,7 @@
 <body>
 	<script type="module">
     import { ARButton } from 'https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js';
-    import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+    
 		let camera, scene, renderer;
 		let loader; // we need to create a variable for a gltf model loader
 
@@ -40,49 +40,40 @@
 			scene.add(light);
 
       // specify a model URL
-      const modelUrl = 'public/aunkur_solo_test.gltf';
+      const modelUrl = './aunkur.glb';
       
 			// create a GLTF loader object. GLTF is a 3D model format usually called the "JPEG of 3D" because it is
       // fast and efficient to use, which is ideal for the web
-	  		const loader = new GLTFLoader();
+			loader = new THREE.GLTFLoader();
       
       // learn about other types of 3D model formats you can use here: 
       // https://threejs.org/docs/#manual/en/introduction/Loading-3D-models
       
       // load the model
       // loader takes in a few arguments loader(model url, onLoad callback, onProgress callback, onError callback)
-				loader.load( '/aunkur_solo_test.gltf', function ( gltf ) {
-
-			scene.add( gltf.scene );
-
-			}, undefined, function ( error ) {
-
-			console.error( error );
-
-			} );
-	  		//loader.load(
+			loader.load(
 				// model URL
-				//modelUrl,
+				modelUrl,
 				// onLoad callback: what get's called once the full model has loaded
-				//function (gltf) {
+				function (gltf) {
           // gltf.scene contains the Three.js object group that represents the 3d object of the model
-					//scene.add(gltf.scene);
+					scene.add(gltf.scene);
           console.log("Model added to scene");
           
           // you can optionally change the position of the model
           // gltf.scene.position.z = -10; // negative Z moves the model in the opposite direction the camera is facing
           // gltf.scene.position.y = 5; // positive Y moves the model up
           // gltf.scene.position.x = 10; // positive X moves hte model to the right
-		//		},
+				},
 				// onProgress callback: optional function for showing progress on model load
-		//		function (xhr) {
+				function (xhr) {
 		      // console.log((xhr.loaded / xhr.total * 100) + '% loaded' );
-	     // },
+	      },
 				// onError callback
-			//	function (error) {
-			//		console.error(error);
-			//	}
-			//);
+				function (error) {
+					console.error(error);
+				}
+			);
 
 			document.body.appendChild(ARButton.createButton(renderer));
 
