@@ -93,6 +93,11 @@
           document.getElementById('modelSelector').style.display = 'none';
           arSessionActive = false;
           updateDropdownVisibility();
+
+          if (currentModel) {
+            scene.remove(currentModel);
+            currentModel = null; // Reset the currentModel variable
+          }
         });
 
 
