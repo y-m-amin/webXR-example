@@ -41,22 +41,27 @@
       animate();
 
       function init() {
-        container = document.createElement("div");
-        document.body.appendChild(container);
-
-        scene = new THREE.Scene();
 
         const startARButton = document.getElementById('startAR');
         startARButton.addEventListener('click', () => {
           if (!renderer.xr.isPresenting) {
-            navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] })
+            navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local'] }) // Changed to 'local'
               .then((session) => {
                 renderer.xr.setSession(session);
                 startARButton.style.display = 'none';
                 document.getElementById('modelSelector').style.display = 'block';
+              })
+              .catch((e) => {
+                console.error(e);
+                alert('Unable to start AR session.');
               });
           }
         });
+
+        container = document.createElement("div");
+        document.body.appendChild(container);
+
+        scene = new THREE.Scene();
 
         camera = new THREE.PerspectiveCamera(
           70,
