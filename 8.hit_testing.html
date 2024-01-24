@@ -83,12 +83,14 @@
         window.addEventListener("resize", onWindowResize, false);
 
 
-        ARbutton.addEventListener('sessionstart', () => {
+        button.addEventListener('sessionstart', () => {
+          console.log("sessionstart triggered");
           arSessionActive = true;
           updateDropdownVisibility();
         });
         
-        ARbutton.addEventListener('sessionend', () => {
+        button.addEventListener('sessionend', () => {
+          console.log("sessionend triggered");
           arSessionActive = false;
           updateDropdownVisibility();
         });
@@ -246,7 +248,7 @@
               reticle.visible = false;
             }
           }
-          updateDropdownVisibility();
+          
           renderer.render(scene, camera);
         }
       }
