@@ -9,7 +9,7 @@ body {
 }
 
 #modelSelector {
-	visibility: visible;
+	display: none;
 	position: absolute; /* Ensure it's positioned relative to the viewport */
     top: 30px;
     left: 50%;
@@ -23,7 +23,7 @@ body {
 display: flex;
 justify-content: center;
 align-items: center;
-visibility: visible;
+/*visibility: visible;*/
 z-index: 10002;
 }
 
