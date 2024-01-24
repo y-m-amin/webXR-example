@@ -83,13 +83,13 @@
         window.addEventListener("resize", onWindowResize, false);
 
 
-        button.addEventListener('sessionstart', () => {
+        button.ARButton.addEventListener('sessionstart', () => {
           console.log("sessionstart triggered");
           arSessionActive = true;
           updateDropdownVisibility();
         });
         
-        button.addEventListener('sessionend', () => {
+        button.ARbutton.addEventListener('sessionend', () => {
           console.log("sessionend triggered");
           arSessionActive = false;
           updateDropdownVisibility();
