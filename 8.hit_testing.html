@@ -11,7 +11,17 @@
   </head>
 
   <body>
+
+    <select id="modelSelector" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: none;">
+      <option value="A.glb">A</option>
+      <option value="B.glb">B</option>
+      <option value="C.glb">C</option>
+    </select>
+
     <script type="module">
+
+      let currentModel = null;
+
       // In this example you should be able to place a cone on top of a surface (like a floor or table)
       // On your phone, you have to tap the screen to place a phone where the circle shows up
       // On the desktop emulator you have to "right-click" to simulate a tap
@@ -62,6 +72,15 @@
         const button = ARButton.createButton(renderer, {
           requiredFeatures: ["hit-test"] // notice a new required feature
         });
+
+        button.addEventListener('sessionstart', () => {
+        document.getElementById('modelSelector').style.display = 'block';
+        });
+        
+        button.addEventListener('sessionend', () => {
+        document.getElementById('modelSelector').style.display = 'none';
+        });
+
         document.body.appendChild(button);
         renderer.domElement.style.display = "none";
 
@@ -74,34 +93,6 @@
       // fast and efficient to use, which is ideal for the web
 			loader = new THREE.GLTFLoader();
       
-      // learn about other types of 3D model formats you can use here: 
-      // https://threejs.org/docs/#manual/en/introduction/Loading-3D-models
-      
-      // load the model
-      // loader takes in a few arguments loader(model url, onLoad callback, onProgress callback, onError callback)
-			// loader.load(
-			// 	// model URL
-			// 	modelUrl,
-			// 	// onLoad callback: what get's called once the full model has loaded
-			// 	function (gltf) {
-      //     // gltf.scene contains the Three.js object group that represents the 3d object of the model
-			// 		scene.add(gltf.scene);
-      //     console.log("Model added to scene");
-          
-      //     // you can optionally change the position of the model
-      //     // gltf.scene.position.z = -10; // negative Z moves the model in the opposite direction the camera is facing
-      //     // gltf.scene.position.y = 5; // positive Y moves the model up
-      //     // gltf.scene.position.x = 10; // positive X moves hte model to the right
-			// 	},
-			// 	// onProgress callback: optional function for showing progress on model load
-			// 	function (xhr) {
-		  //     // console.log((xhr.loaded / xhr.total * 100) + '% loaded' );
-	    //   },
-			// 	// onError callback
-			// 	function (error) {
-			// 		console.error(error);
-			// 	}
-			// );
 
       }
 
@@ -123,30 +114,10 @@
         // reticle.add(new THREE.AxesHelper(1));
       }
 
-      function onSelect() {        
-        
-          // cone added at the point of a hit test
-          // replace the next lines to add your own object in space
-          
-        if (reticle.visible && !modelLoaded) {
-          modelLoaded = true; // Set the flag to true
-
-          // Load the model only when the reticle is visible and the model is not loaded yet
-          const loader = new THREE.GLTFLoader();
-          loader.load(
-            './aunkur.glb', // Path to your GLTF model
-            function (gltf) {
-              const model = gltf.scene;
-              model.position.setFromMatrixPosition(reticle.matrix);
-              model.quaternion.setFromRotationMatrix(reticle.matrix);
-              scene.add(model);
-              console.log("Model added to scene");
-            },
-            undefined,
-            function (error) {
-              console.error(error);
-            }
-          );
+      function onSelect() {
+      if (reticle.visible) {
+        const selectedModel = document.getElementById('modelSelector').value;
+        loadModel(selectedModel);
         }
       }
 
@@ -155,6 +126,26 @@
         camera.updateProjectionMatrix();
 
         renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+
+      function loadModel(modelName) {
+      if (currentModel) {
+        scene.remove(currentModel);
+      }
+
+      loader.load(
+        modelName,
+        function (gltf) {
+          currentModel = gltf.scene;
+          currentModel.position.setFromMatrixPosition(reticle.matrix);
+          currentModel.quaternion.setFromRotationMatrix(reticle.matrix);
+          scene.add(currentModel);
+        },
+        undefined,
+        function (error) {
+          console.error(error);
+        }
+       );
       }
 
       function animate() {
