@@ -111,9 +111,7 @@
       let initialDropdownDisplay = window.getComputedStyle(modelSelector).display;
       function updateDropdownVisibility() {
         const modelSelector = document.getElementById('modelSelector');
-        if (window.innerWidth < 768) {
-        document.getElementById('modelSelector').classList.add('mobile-dropdown');
-        }
+        
         console.log("Dropdown visibility:", arSessionActive ? "Show" : "Hide");  // Add this log
         console.log("Dropdown display style:", modelSelector.style.display);  // Add this log
         if (arSessionActive) {
@@ -222,9 +220,13 @@
       // a VR or AR sccene.
       function render(timestamp, frame) {
         if (frame) {
-
+          
+          
           updateDropdownVisibility();
-
+          if (window.innerWidth < 768) {
+            document.getElementById('modelSelector').classList.add('mobile-dropdown');
+            }
+          console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);
           console.log("AR session active:", arSessionActive);  // Add this log
           console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);  // Add this log
 

@@ -8,6 +8,19 @@ body {
 	overscroll-behavior: none;
 }
 
+#modelSelector {
+	visibility: visible;
+	z-index: 10010;
+  }
+
+.mobile-dropdown {
+visibility: visible;
+display: flex;
+justify-content: center;
+align-items: center;
+z-index: 10100;
+}
+
 a {
 	color: #ff0;
 	text-decoration: none;
@@ -30,13 +43,3 @@ a, button, input, select {
 	pointer-events: auto;
 }
 
-#modelSelector {
-	z-index: 10010;
-  }
-
-.mobile-dropdown {
-display: flex;
-justify-content: center;
-align-items: center;
-z-index: 10100;
-}
