@@ -75,9 +75,7 @@
           requiredFeatures: ["hit-test"] // notice a new required feature
         });
 
-        if (window.innerWidth < 768) {
-        document.getElementById('modelSelector').classList.add('mobile-dropdown');
-        }
+
 
         document.body.appendChild(button);
         renderer.domElement.style.display = "none";
@@ -113,6 +111,9 @@
       let initialDropdownDisplay = window.getComputedStyle(modelSelector).display;
       function updateDropdownVisibility() {
         const modelSelector = document.getElementById('modelSelector');
+        if (window.innerWidth < 768) {
+        document.getElementById('modelSelector').classList.add('mobile-dropdown');
+        }
         console.log("Dropdown visibility:", arSessionActive ? "Show" : "Hide");  // Add this log
         console.log("Dropdown display style:", modelSelector.style.display);  // Add this log
         if (arSessionActive) {
