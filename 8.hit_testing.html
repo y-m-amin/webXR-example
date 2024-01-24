@@ -74,13 +74,15 @@
         });
 
         button.addEventListener('sessionstart', () => {
-        document.getElementById('modelSelector').style.display = 'block';
+          console.log("AR session started");
+          document.getElementById('modelSelector').style.display = 'block';
         });
         
         button.addEventListener('sessionend', () => {
-        document.getElementById('modelSelector').style.display = 'none';
+          console.log("AR session ended");
+          document.getElementById('modelSelector').style.display = 'none';
         });
-
+        
         document.body.appendChild(button);
         renderer.domElement.style.display = "none";
 
