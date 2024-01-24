@@ -83,12 +83,12 @@
         window.addEventListener("resize", onWindowResize, false);
 
 
-        button.addEventListener('sessionstart', () => {
+        ARbutton.addEventListener('sessionstart', () => {
           arSessionActive = true;
           updateDropdownVisibility();
         });
         
-        button.addEventListener('sessionend', () => {
+        ARbutton.addEventListener('sessionend', () => {
           arSessionActive = false;
           updateDropdownVisibility();
         });
@@ -216,7 +216,7 @@
         if (frame) {
 
           updateDropdownVisibility();
-          
+
           console.log("AR session active:", arSessionActive);  // Add this log
           console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);  // Add this log
 
