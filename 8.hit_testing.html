@@ -81,14 +81,14 @@
         renderer.domElement.style.display = "none";
 
 
-        render.xr.addEventListener('sessionstart', () => {
+        renderer.xr.addEventListener('sessionstart', () => {
           console.log("sessionstart triggered");
           document.getElementById('modelSelector').style.display = 'block';
           arSessionActive = true;
           updateDropdownVisibility();
         });
         
-        render.xr.addEventListener('sessionend', () => {
+        renderer.xr.addEventListener('sessionend', () => {
           console.log("sessionend triggered");
           document.getElementById('modelSelector').style.display = 'none';
           arSessionActive = false;
