@@ -61,8 +61,8 @@
         renderer.xr.enabled = true;
         container.appendChild(renderer.domElement);
 
-        var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-        light.position.set(0.5, 1, 0.25);
+        var light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 3);
+        light.position.set(0.5, 3, 0.25);
         scene.add(light);
         
         controller = renderer.xr.getController(0);
