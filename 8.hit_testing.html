@@ -13,12 +13,12 @@
   <body>
 
     <body>
-      <button id="startAR">Start AR</button>
-      <select id="modelSelector" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: none;">
+      <select id="modelSelector" style="position: absolute; top: 30px; left: 50%; transform: translateX(-50%); display: inline-block;">
         <option value="A.glb">A</option>
         <option value="B.glb">B</option>
         <option value="C.glb">C</option>
       </select>
+
     <script type="module">
 
       let currentModel = null;
@@ -41,23 +41,6 @@
       animate();
 
       function init() {
-
-        const startARButton = document.getElementById('startAR');
-        startARButton.addEventListener('click', () => {
-          if (!renderer.xr.isPresenting) {
-            navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['local'] }) // Changed to 'local'
-              .then((session) => {
-                renderer.xr.setSession(session);
-                startARButton.style.display = 'none';
-                document.getElementById('modelSelector').style.display = 'block';
-              })
-              .catch((e) => {
-                console.error(e);
-                alert('Unable to start AR session.');
-              });
-          }
-        });
-
         container = document.createElement("div");
         document.body.appendChild(container);
 
@@ -88,9 +71,9 @@
 
         addReticleToScene();
 
-        // const button = ARButton.createButton(renderer, {
-        //   requiredFeatures: ["hit-test"] // notice a new required feature
-        // });
+        const button = ARButton.createButton(renderer, {
+          requiredFeatures: ["hit-test"] // notice a new required feature
+        });
 
        
 
