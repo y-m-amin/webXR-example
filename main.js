@@ -9,7 +9,9 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize( window.innerWidth, window.innerHeight );
 document.body.appendChild( renderer.domElement );
 
-
+if (window.innerWidth < 1080) {
+	document.getElementById('modelSelector').classList.add('mobile-dropdown');
+	}
 
 camera.position.z = 5;
 

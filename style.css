@@ -10,14 +10,20 @@ body {
 
 #modelSelector {
 	visibility: visible;
+	position: absolute; /* Ensure it's positioned relative to the viewport */
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10002;
 	z-index: 10002;
   }
 
 .mobile-dropdown {
-visibility: visible;
+
 display: flex;
 justify-content: center;
 align-items: center;
+visibility: visible;
 z-index: 10002;
 }
 
