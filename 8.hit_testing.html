@@ -22,7 +22,7 @@
     <script type="module">
 
       let currentModel = null;
-      let arSessionActive = true; // State to track AR session
+      let arSessionActive = false; // State to track AR session
 
       // In this example you should be able to place a cone on top of a surface (like a floor or table)
       // On your phone, you have to tap the screen to place a phone where the circle shows up
@@ -81,14 +81,14 @@
         renderer.domElement.style.display = "none";
 
 
-        button.addEventListener('sessionstart', () => {
+        render.xr.addEventListener('sessionstart', () => {
           console.log("sessionstart triggered");
           document.getElementById('modelSelector').style.display = 'block';
           arSessionActive = true;
           updateDropdownVisibility();
         });
         
-        button.addEventListener('sessionend', () => {
+        render.xr.addEventListener('sessionend', () => {
           console.log("sessionend triggered");
           document.getElementById('modelSelector').style.display = 'none';
           arSessionActive = false;
