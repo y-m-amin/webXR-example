@@ -106,6 +106,8 @@
       let initialDropdownDisplay = window.getComputedStyle(modelSelector).display;
       function updateDropdownVisibility() {
         const modelSelector = document.getElementById('modelSelector');
+        console.log("Dropdown visibility:", arSessionActive ? "Show" : "Hide");  // Add this log
+        console.log("Dropdown display style:", modelSelector.style.display);  // Add this log
         if (arSessionActive) {
           modelSelector.style.display = 'block'; // Show dropdown
         } else {
@@ -214,6 +216,9 @@
         if (frame) {
 
           updateDropdownVisibility();
+          
+          console.log("AR session active:", arSessionActive);  // Add this log
+          console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);  // Add this log
 
           // 1. create a hit test source once and keep it for all the frames
           // this gets called only once
