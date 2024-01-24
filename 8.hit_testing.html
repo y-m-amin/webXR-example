@@ -162,6 +162,8 @@
         modelName,
         function (gltf) {
           currentModel = gltf.scene;
+          currentModel.scale.set(0.1, 0.1, 0.1); // Scale the model to 0.1
+
           currentModel.position.setFromMatrixPosition(reticle.matrix);
           currentModel.quaternion.setFromRotationMatrix(reticle.matrix);
           scene.add(currentModel);
