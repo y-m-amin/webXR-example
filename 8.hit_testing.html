@@ -12,7 +12,7 @@
 
   <body>
 
-    <select id="modelSelector" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: none;">
+    <select id="modelSelector" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: inline-block;">
       <option value="A.glb">A</option>
       <option value="B.glb">B</option>
       <option value="C.glb">C</option>
@@ -82,7 +82,7 @@
           console.log("AR session ended");
           document.getElementById('modelSelector').style.display = 'none';
         });
-        
+
         document.body.appendChild(button);
         renderer.domElement.style.display = "none";
 
