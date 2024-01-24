@@ -33,3 +33,9 @@ a, button, input, select {
 #modelSelector {
 	z-index: 10010;
   }
+
+.mobile-dropdown {
+display: flex;
+justify-content: center;
+align-items: center;
+}

@@ -39,7 +39,9 @@
 
       init();
       animate();
-
+      if (window.innerWidth < 768) {
+        document.getElementById('modelSelector').classList.add('mobile-dropdown');
+      }
       function init() {
         container = document.createElement("div");
         document.body.appendChild(container);
