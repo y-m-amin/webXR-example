@@ -213,13 +213,15 @@
       function render(timestamp, frame) {
         if (frame) {
 
-          updateDropdownVisibility();
+          
 
           // 1. create a hit test source once and keep it for all the frames
           // this gets called only once
           if (!hitTestSourceInitialized) {
             initializeHitTestSource();
           }
+
+          updateDropdownVisibility();
 
           // 2. get hit test results
           if (hitTestSourceInitialized) {
@@ -239,7 +241,7 @@
               reticle.visible = false;
             }
           }
-
+          updateDropdownVisibility();
           renderer.render(scene, camera);
         }
       }
