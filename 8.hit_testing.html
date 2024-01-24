@@ -103,12 +103,13 @@
 
       }
 
+      let initialDropdownDisplay = window.getComputedStyle(modelSelector).display;
       function updateDropdownVisibility() {
         const modelSelector = document.getElementById('modelSelector');
         if (arSessionActive) {
-          modelSelector.style.display = 'block';
+          modelSelector.style.display = 'block'; // Show dropdown
         } else {
-          modelSelector.style.display = 'none';
+          modelSelector.style.display = initialDropdownDisplay; // Hide dropdown
         }
       }
 
@@ -211,6 +212,9 @@
       // a VR or AR sccene.
       function render(timestamp, frame) {
         if (frame) {
+
+          updateDropdownVisibility();
+
           // 1. create a hit test source once and keep it for all the frames
           // this gets called only once
           if (!hitTestSourceInitialized) {
