@@ -9,13 +9,13 @@ body {
 }
 
 #modelSelector {
-	display: none;
+	display: block;
 	position: absolute; /* Ensure it's positioned relative to the viewport */
     top: 30px;
     left: 50%;
     transform: translateX(-50%);
-    z-index: 10002;
-	z-index: 10002;
+    z-index: 20000;
+	
   }
 
 .mobile-dropdown {
@@ -23,8 +23,8 @@ body {
 display: flex;
 justify-content: center;
 align-items: center;
-/*visibility: visible;*/
-z-index: 10002;
+visibility: visible;
+z-index: 20000;
 }
 
 a {
