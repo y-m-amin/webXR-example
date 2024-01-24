@@ -12,15 +12,17 @@
 
   <body>
 
-    <select id="modelSelector" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: inline-block;">
-      <option value="A.glb">A</option>
-      <option value="B.glb">B</option>
-      <option value="C.glb">C</option>
-    </select>
+    <body>
+      <select id="modelSelector" style="position: absolute; top: 30px; left: 50%; transform: translateX(-50%); display: none;">
+        <option value="A.glb">A</option>
+        <option value="B.glb">B</option>
+        <option value="C.glb">C</option>
+      </select>
 
     <script type="module">
 
       let currentModel = null;
+      let arSessionActive = false; // State to track AR session
 
       // In this example you should be able to place a cone on top of a surface (like a floor or table)
       // On your phone, you have to tap the screen to place a phone where the circle shows up
@@ -74,13 +76,13 @@
         });
 
         button.addEventListener('sessionstart', () => {
-          console.log("AR session started");
-          document.getElementById('modelSelector').style.display = 'block';
+          arSessionActive = true;
+          updateDropdownVisibility();
         });
         
         button.addEventListener('sessionend', () => {
-          console.log("AR session ended");
-          document.getElementById('modelSelector').style.display = 'none';
+          arSessionActive = false;
+          updateDropdownVisibility();
         });
 
         document.body.appendChild(button);
@@ -89,13 +91,22 @@
         window.addEventListener("resize", onWindowResize, false);
 
          // specify a model URL
-      const modelUrl = './aunkur.glb';
+      //const modelUrl = './aunkur.glb';
       
 			// create a GLTF loader object. GLTF is a 3D model format usually called the "JPEG of 3D" because it is
       // fast and efficient to use, which is ideal for the web
 			loader = new THREE.GLTFLoader();
       
 
+      }
+
+      function updateDropdownVisibility() {
+        const modelSelector = document.getElementById('modelSelector');
+        if (arSessionActive) {
+          modelSelector.style.display = 'block';
+        } else {
+          modelSelector.style.display = 'none';
+        }
       }
 
       function addReticleToScene() {
