@@ -13,12 +13,12 @@
   <body>
 
     <body>
-      <select id="modelSelector" style="position: absolute; top: 30px; left: 50%; transform: translateX(-50%); display: none;">
+      <button id="startAR">Start AR</button>
+      <select id="modelSelector" style="position: absolute; top: 10px; left: 50%; transform: translateX(-50%); display: none;">
         <option value="A.glb">A</option>
         <option value="B.glb">B</option>
         <option value="C.glb">C</option>
       </select>
-
     <script type="module">
 
       let currentModel = null;
@@ -46,6 +46,18 @@
 
         scene = new THREE.Scene();
 
+        const startARButton = document.getElementById('startAR');
+        startARButton.addEventListener('click', () => {
+          if (!renderer.xr.isPresenting) {
+            navigator.xr.requestSession('immersive-ar', { requiredFeatures: ['hit-test'] })
+              .then((session) => {
+                renderer.xr.setSession(session);
+                startARButton.style.display = 'none';
+                document.getElementById('modelSelector').style.display = 'block';
+              });
+          }
+        });
+
         camera = new THREE.PerspectiveCamera(
           70,
           window.innerWidth / window.innerHeight,
@@ -71,9 +83,17 @@
 
         addReticleToScene();
 
-        const button = ARButton.createButton(renderer, {
-          requiredFeatures: ["hit-test"] // notice a new required feature
-        });
+        // const button = ARButton.createButton(renderer, {
+        //   requiredFeatures: ["hit-test"] // notice a new required feature
+        // });
+
+       
+
+        document.body.appendChild(button);
+        renderer.domElement.style.display = "none";
+
+        window.addEventListener("resize", onWindowResize, false);
+
 
         button.addEventListener('sessionstart', () => {
           arSessionActive = true;
@@ -84,11 +104,6 @@
           arSessionActive = false;
           updateDropdownVisibility();
         });
-
-        document.body.appendChild(button);
-        renderer.domElement.style.display = "none";
-
-        window.addEventListener("resize", onWindowResize, false);
 
          // specify a model URL
       //const modelUrl = './aunkur.glb';
