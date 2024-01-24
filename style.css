@@ -29,3 +29,7 @@ canvas {
 a, button, input, select {
 	pointer-events: auto;
 }
+
+#modelSelector {
+	z-index: 10010;
+  }
