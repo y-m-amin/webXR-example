@@ -27,7 +27,7 @@
       // In this example you should be able to place a cone on top of a surface (like a floor or table)
       // On your phone, you have to tap the screen to place a phone where the circle shows up
       // On the desktop emulator you have to "right-click" to simulate a tap
-      
+      import { XRGestures } from './lib/XRGestures.js';
       import { ARButton } from "https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js";
       let myModel;
       let container;
@@ -39,7 +39,7 @@
 
       init();
       animate();
-      
+      const xrGestures = new XRGestures(renderer);
       function init() {
         container = document.createElement("div");
         document.body.appendChild(container);
@@ -81,10 +81,25 @@
           requiredFeatures: ["hit-test"] // notice a new required feature
         });
 
-                // Touch interaction for model rotation
-          let touchStartX = 0;
-          let rotating = false;
 
+        xrGestures.addEventListener('rotate', (event) => {
+          if (currentModel) {
+            // Apply rotation based on the theta value from the event
+            currentModel.rotation.y += event.theta;
+          }
+        });
+
+        xrGestures.addEventListener('pinch', (event) => {
+          if (currentModel) {
+            // Apply scaling based on the scale value from the event
+            const scale = currentModel.scale.x * event.scale;
+            currentModel.scale.set(scale, scale, scale);
+          }
+        });
+
+            // Touch interaction for model rotation
+            let touchStartX = 0;
+          let rotating = false;
           renderer.xr.addEventListener('touchstart', (event) => {
             // Check if the touchstart event is on the model
             // This requires raycasting to determine if the model was touched
@@ -220,7 +235,10 @@
       }
 
       function animate() {
-        renderer.setAnimationLoop(render);
+        renderer.setAnimationLoop((timestamp, frame) => {
+          xrGestures.update(); // Update gestures
+          render(timestamp, frame);
+        });
        
       }
 
