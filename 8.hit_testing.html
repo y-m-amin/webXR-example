@@ -85,7 +85,7 @@
           let touchStartX = 0;
           let rotating = false;
 
-          renderer.domElement.addEventListener('touchstart', (event) => {
+          renderer.xr.addEventListener('touchstart', (event) => {
             // Check if the touchstart event is on the model
             // This requires raycasting to determine if the model was touched
             const raycaster = new THREE.Raycaster();
@@ -103,7 +103,7 @@
             }
           });
 
-          renderer.domElement.addEventListener('touchmove', (event) => {
+          renderer.xr.addEventListener('touchmove', (event) => {
             if (rotating && currentModel) {
               const deltaX = event.touches[0].clientX - touchStartX;
               currentModel.rotation.y += deltaX * 0.005; // Adjust rotation speed factor as needed
@@ -111,7 +111,7 @@
             }
           });
 
-          renderer.domElement.addEventListener('touchend', () => {
+          renderer.xr.addEventListener('touchend', () => {
             rotating = false;
           });
 
