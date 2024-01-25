@@ -177,7 +177,7 @@
           if (reticle.visible) {
               const selectedModel = document.getElementById('modelSelector').value;
               loadModel(selectedModel);
-              reticle.visible = false; // Hide the reticle after placing the model
+              
           }
         }
   
@@ -204,6 +204,8 @@
                   currentModel.quaternion.setFromRotationMatrix(reticle.matrix);
 
                   scene.add(currentModel);
+
+                  reticle.visible = false; // Hide the reticle after placing the model
               },
               undefined,
               function (error) {
