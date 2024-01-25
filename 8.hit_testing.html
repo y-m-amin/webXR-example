@@ -145,14 +145,14 @@
   
   
           renderer.xr.addEventListener('sessionstart', () => {
-            console.log("sessionstart triggered");
+            //console.log("sessionstart triggered");
             document.getElementById('modelSelector').style.display = 'block';
             arSessionActive = true;
             updateDropdownVisibility();
           });
           
           renderer.xr.addEventListener('sessionend', () => {
-            console.log("sessionend triggered");
+            //console.log("sessionend triggered");
             document.getElementById('modelSelector').style.display = 'none';
             arSessionActive = false;
             updateDropdownVisibility();
@@ -180,8 +180,8 @@
         function updateDropdownVisibility() {
           const modelSelector = document.getElementById('modelSelector');
           
-          console.log("Dropdown visibility:", arSessionActive ? "Show" : "Hide");  // Add this log
-          console.log("Dropdown display style:", modelSelector.style.display);  // Add this log
+          //console.log("Dropdown visibility:", arSessionActive ? "Show" : "Hide");  // Add this log
+          //console.log("Dropdown display style:", modelSelector.style.display);  // Add this log
           if (arSessionActive) {
             modelSelector.style.display = 'block'; // Show dropdown
           } else {
