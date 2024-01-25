@@ -27,11 +27,11 @@
       let modelLoaded = false; 
 
       init();
-      import { XRGestures } from './libs/XRGestures.js';
-      const xrGestures = new XRGestures(renderer);
+
       animate();
       
-      
+      import { XRGestures } from './libs/XRGestures.js';
+      const xrGestures = new XRGestures(renderer);
       function init() {
         container = document.createElement("div");
         document.body.appendChild(container);
