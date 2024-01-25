@@ -1,4 +1,4 @@
-import * as THREE from './three/three.module.js';
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js';
 
 class XRGestures extends THREE.EventDispatcher{
     constructor( renderer ){
