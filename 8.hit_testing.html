@@ -29,11 +29,17 @@
       // On the desktop emulator you have to "right-click" to simulate a tap
       
       import { ARButton } from "https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js";
+      import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js';
+      import { Clock } from 'three';
+
+      const clock = new Clock();
+
       let myModel;
       let container;
       let camera, scene, renderer;
       let reticle;
-      let controller;
+      let controller1;
+      let controller2;
       let loader; // we need to create a variable for a gltf model loader
       let modelLoaded = false; 
 
@@ -70,12 +76,31 @@
         directionalLight.position.set(0.5, 2, 0.3);
         scene.add(directionalLight);
 
-        controller = renderer.xr.getController(0);
-        controller.addEventListener('select', onSelect);
-        controller.addEventListener('touchstart');
-        controller.addEventListener('touchmove');
-        controller.addEventListener('touchend');
-        scene.add(controller);
+        controller1 = renderer.xr.getController(0);
+        controller1.userData.gestures = { index: 0 };
+        controller1.userData.selectPressed = false;
+        controller1.addEventListener( 'selectstart', onSelectStart );
+        controller1.addEventListener( 'select', onSelect );
+        controller1.addEventListener( 'selectend', onSelectEnd );
+        
+        controller2 = renderer.xr.getController(1);
+        controller2.userData.gestures = { index: 1 };
+        controller2.userData.selectPressed = false;
+        controller2.addEventListener( 'selectstart', onSelectStart );
+        controller2.addEventListener( 'selectend', onSelectEnd );
+        
+        scene.add(controller1);
+        scene.add(controller2);
+
+        doubleClickLimit = 0.2;
+        pressMinimum = 0.4;
+        right = new THREE.Vector3(1,0,0);
+        up = new THREE.Vector3(0,1,0);
+        
+        type = 'unknown';
+        touchCount = 0;
+        
+        clock = clock;
 
         addReticleToScene();
 
@@ -83,39 +108,39 @@
           requiredFeatures: ["hit-test"] // notice a new required feature
         });
 
-        // Touch interaction for model rotation
-  let touchStartX = 0;
-  let rotating = false;
+              // Touch interaction for model rotation
+        let touchStartX = 0;
+        let rotating = false;
 
-  renderer.domElement.addEventListener('touchstart', (event) => {
-    // Check if the touchstart event is on the model
-    // This requires raycasting to determine if the model was touched
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2(
-      (event.touches[0].clientX / window.innerWidth) * 2 - 1,
-      -(event.touches[0].clientY / window.innerHeight) * 2 + 1
-    );
+        renderer.domElement.addEventListener('touchstart', (event) => {
+          // Check if the touchstart event is on the model
+          // This requires raycasting to determine if the model was touched
+          const raycaster = new THREE.Raycaster();
+          const mouse = new THREE.Vector2(
+            (event.touches[0].clientX / window.innerWidth) * 2 - 1,
+            -(event.touches[0].clientY / window.innerHeight) * 2 + 1
+          );
 
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObject(currentModel, true);
+          raycaster.setFromCamera(mouse, camera);
+          const intersects = raycaster.intersectObject(currentModel, true);
 
-    if (intersects.length > 0) {
-      touchStartX = event.touches[0].clientX;
-      rotating = true;
-    }
-  });
+          if (intersects.length > 0) {
+            touchStartX = event.touches[0].clientX;
+            rotating = true;
+          }
+        });
 
-  renderer.domElement.addEventListener('touchmove', (event) => {
-    if (rotating && currentModel) {
-      const deltaX = event.touches[0].clientX - touchStartX;
-      currentModel.rotation.y += deltaX * 0.005; // Adjust rotation speed factor as needed
-      touchStartX = event.touches[0].clientX;
-    }
-  });
+        renderer.domElement.addEventListener('touchmove', (event) => {
+          if (rotating && currentModel) {
+            const deltaX = event.touches[0].clientX - touchStartX;
+            currentModel.rotation.y += deltaX * 0.005; // Adjust rotation speed factor as needed
+            touchStartX = event.touches[0].clientX;
+          }
+        });
 
-  renderer.domElement.addEventListener('touchend', () => {
-    rotating = false;
-  });
+        renderer.domElement.addEventListener('touchend', () => {
+          rotating = false;
+        });
 
 
         document.body.appendChild(button);
@@ -155,6 +180,52 @@
       }
 
       let initialDropdownDisplay = window.getComputedStyle(modelSelector).display;
+
+      function onSelectStart( ){
+            const data = userData.gestures;
+            
+            data.startPosition = undefined;
+            data.startTime = clock.getElapsedTime();
+            
+            if ( type.indexOf('tap') == -1) data.taps = 0;
+            
+            type = 'unknown';
+            userData.selectPressed = true;
+            
+            touchCount++;
+            
+            console.log( `onSelectStart touchCount: ${ self.touchCount }` );
+        }
+        
+        function onSelectEnd( ){
+            const data = userData.gestures;
+            
+            data.endTime = clock.getElapsedTime();
+            const startToEnd = data.endTime - data.startTime;
+            
+            //console.log(`XRGestures.onSelectEnd: startToEnd:${startToEnd.toFixed(2)} taps:${data.taps}`);
+            
+            if (type === 'swipe'){
+                const direction = ( controller1.position.y < data.startPosition.y) ? "DOWN" : "UP";
+                dispatchEvent( { type:'swipe', direction } );
+                type = 'unknown';
+            }else if (type !== "pinch" && type !== "rotate" && type !== 'pan'){
+                if ( startToEnd < doubleClickLimit ){
+                    type = "tap";
+                    data.taps++;
+                }else if ( startToEnd > self.pressMinimum ){
+                    dispatchEvent( { type: 'press', position: controller1.position, matrixWorld: controller1.matrixWorld }   );
+                    type = 'unknown';
+                }
+            }else{
+                type = 'unknown';
+            }
+            
+            userData.selectPressed = false;
+            data.startPosition = undefined;
+            
+            touchCount--;
+        }
       function updateDropdownVisibility() {
         const modelSelector = document.getElementById('modelSelector');
         
