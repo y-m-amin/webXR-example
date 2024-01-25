@@ -80,55 +80,20 @@
           requiredFeatures: ["hit-test"] // notice a new required feature
         });
 
-        let initialTouchPositions = {};
 
-        renderer.domElement.addEventListener('touchstart', (event) => {
-          if (event.touches.length === 2) {
-            // Record initial positions of two touches
-            initialTouchPositions = {
-              x0: event.touches[0].clientX,
-              x1: event.touches[1].clientX
-            };
-          }
-        });
-
-        renderer.domElement.addEventListener('touchmove', (event) => {
-          if (event.touches.length === 2 && currentModel) {
-            // Calculate the difference in touch positions
-            let deltaX0 = event.touches[0].clientX - initialTouchPositions.x0;
-            let deltaX1 = event.touches[1].clientX - initialTouchPositions.x1;
-
-            // Average the movement for smoother rotation
-            let avgDeltaX = (deltaX0 + deltaX1) / 2;
-
-            // Apply rotation to the model
-            currentModel.rotation.y += avgDeltaX * 0.005; // Adjust rotation speed factor (0.005) as needed
-
-            // Update initial positions for next move
-            initialTouchPositions.x0 = event.touches[0].clientX;
-            initialTouchPositions.x1 = event.touches[1].clientX;
-          }
-        });
-
-        renderer.domElement.addEventListener('touchend', (event) => {
-          if (event.touches.length < 2) {
-            // Reset initial touch positions
-            initialTouchPositions = {};
-          }
-        });
 
         document.body.appendChild(button);
         renderer.domElement.style.display = "none";
 
 
-        renderer.xr.addEventListener('sessionstart', () => {
+        xrSession.addEventListener('sessionstart', () => {
           console.log("sessionstart triggered");
           document.getElementById('modelSelector').style.display = 'block';
           arSessionActive = true;
           updateDropdownVisibility();
         });
         
-        renderer.xr.addEventListener('sessionend', () => {
+        xrSession.addEventListener('sessionend', () => {
           console.log("sessionend triggered");
           document.getElementById('modelSelector').style.display = 'none';
           arSessionActive = false;
