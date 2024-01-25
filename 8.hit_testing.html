@@ -65,14 +65,13 @@
           renderer.setPixelRatio(window.devicePixelRatio);
           renderer.setSize(window.innerWidth, window.innerHeight);
           renderer.xr.enabled = true;
-          container.appendChild(renderer.domElement);
           const button = ARButton.createButton(renderer, {
             requiredFeatures: ["hit-test"] // notice a new required feature
           });
           
-          
+          container.appendChild(renderer.domElement);
           // Initialize XRGestures
-          xrGestures = new XRGestures(this.renderer);
+         xrGestures = new XRGestures(renderer);
   
           // Ambient light for overall illumination
           var ambientLight = new THREE.AmbientLight(0xcadeed, 1.5);
@@ -90,7 +89,9 @@
   
           addReticleToScene();
   
-          this.xrGestures.addEventListener('pinch', (event) => {
+
+
+          xrGestures.addEventListener('pinch', (event) => {
               // Handle pinch gesture
               // Example: Scale your model
               if (currentModel && event.scale !== undefined) {
@@ -99,7 +100,7 @@
               }
           });
 
-          this.xrGestures.addEventListener('rotate', (event) => {
+          xrGestures.addEventListener('rotate', (event) => {
               // Handle rotate gesture
               // Example: Rotate your model
               if (currentModel && event.theta !== undefined) {
@@ -218,10 +219,9 @@
   
         function animate() {
           renderer.setAnimationLoop((timestamp, frame) => {
-                    // Update gestures
-              if (this.xrGestures) {
-                  this.xrGestures.update();
-              }
+            if (xrGestures) {
+                xrGestures.update(); // Ensure xrGestures is defined before calling update
+            }
             render(timestamp, frame);
         });
          
