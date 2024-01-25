@@ -82,7 +82,7 @@
           directionalLight.position.set(0.5, 2, 0.3);
           scene.add(directionalLight);
   
-          controller = renderer.xr.getController(2);
+          controller = renderer.xr.getController(0);
           controller.addEventListener('select', onSelect);
           
           scene.add(controller);
