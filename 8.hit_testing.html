@@ -174,9 +174,10 @@
         }
   
         function onSelect() {
-        if (reticle.visible) {
-          const selectedModel = document.getElementById('modelSelector').value;
-          loadModel(selectedModel);
+          if (reticle.visible) {
+              const selectedModel = document.getElementById('modelSelector').value;
+              loadModel(selectedModel);
+              reticle.visible = false; // Hide the reticle after placing the model
           }
         }
   
@@ -188,25 +189,27 @@
         }
   
         function loadModel(modelName) {
-        if (currentModel) {
-          scene.remove(currentModel);
-        }
-  
-        loader.load(
-          modelName,
-          function (gltf) {
-            currentModel = gltf.scene;
-            currentModel.scale.set(0.1, 0.1, 0.1); // Scale the model to 0.1
-  
-            currentModel.position.setFromMatrixPosition(reticle.matrix);
-            currentModel.quaternion.setFromRotationMatrix(reticle.matrix);
-            scene.add(currentModel);
-          },
-          undefined,
-          function (error) {
-            console.error(error);
+          if (currentModel) {
+              scene.remove(currentModel);
           }
-         );
+
+          loader.load(
+              modelName,
+              function (gltf) {
+                  currentModel = gltf.scene;
+                  currentModel.scale.set(0.1, 0.1, 0.1); // Scale the model
+
+                  // Set the position and rotation of the model based on the reticle
+                  currentModel.position.setFromMatrixPosition(reticle.matrix);
+                  currentModel.quaternion.setFromRotationMatrix(reticle.matrix);
+
+                  scene.add(currentModel);
+              },
+              undefined,
+              function (error) {
+                  console.error(error);
+              }
+          );
         }
   
         function animate() {
