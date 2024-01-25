@@ -176,6 +176,7 @@
         function onSelect() {
           if (reticle.visible) {
               const selectedModel = document.getElementById('modelSelector').value;
+              reticle.visible = false;
               loadModel(selectedModel);
               
           }
@@ -205,7 +206,7 @@
 
                   scene.add(currentModel);
 
-                  reticle.visible = false; // Hide the reticle after placing the model
+                  //reticle.visible = false; // Hide the reticle after placing the model
               },
               undefined,
               function (error) {
@@ -268,11 +269,11 @@
         function render(timestamp, frame) {
           if (frame) {
             
-            
-            updateDropdownVisibility();
             if (window.innerWidth < 1080) {
               document.getElementById('modelSelector').classList.add('mobile-dropdown');
               }
+            updateDropdownVisibility();
+
             //console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);
             //console.log("AR session active:", arSessionActive);  // Add this log
             //console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);  // Add this log
@@ -287,21 +288,19 @@
   
             // 2. get hit test results
             if (hitTestSourceInitialized) {
-              // we get the hit test results for a particular frame
-              const hitTestResults = frame.getHitTestResults(hitTestSource);
-  
-              // XRHitTestResults The hit test may find multiple surfaces. The first one in the array is the one closest to the camera.
-              if (hitTestResults.length > 0) {
-                const hit = hitTestResults[0];
-                // Get a pose from the hit test result. The pose represents the pose of a point on a surface.
-                const pose = hit.getPose(localSpace);
-  
-                reticle.visible = true;
-                // Transform/move the reticle image to the hit test position
-                reticle.matrix.fromArray(pose.transform.matrix);
-              } else {
-                reticle.visible = false;
-              }
+                const hitTestResults = frame.getHitTestResults(hitTestSource);
+
+                if (hitTestResults.length > 0) {
+                    const hit = hitTestResults[0];
+                    const pose = hit.getPose(localSpace);
+
+                    if (!currentModel) { // Only make reticle visible if no model is currently placed
+                        reticle.visible = true;
+                        reticle.matrix.fromArray(pose.transform.matrix);
+                    }
+                } else {
+                    reticle.visible = false;
+                }
             }
             
             renderer.render(scene, camera);
