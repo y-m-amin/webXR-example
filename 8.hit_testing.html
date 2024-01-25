@@ -80,6 +80,39 @@
           requiredFeatures: ["hit-test"] // notice a new required feature
         });
 
+        // Touch interaction for model rotation
+  let touchStartX = 0;
+  let rotating = false;
+
+  renderer.domElement.addEventListener('touchstart', (event) => {
+    // Check if the touchstart event is on the model
+    // This requires raycasting to determine if the model was touched
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2(
+      (event.touches[0].clientX / window.innerWidth) * 2 - 1,
+      -(event.touches[0].clientY / window.innerHeight) * 2 + 1
+    );
+
+    raycaster.setFromCamera(mouse, camera);
+    const intersects = raycaster.intersectObject(currentModel, true);
+
+    if (intersects.length > 0) {
+      touchStartX = event.touches[0].clientX;
+      rotating = true;
+    }
+  });
+
+  renderer.domElement.addEventListener('touchmove', (event) => {
+    if (rotating && currentModel) {
+      const deltaX = event.touches[0].clientX - touchStartX;
+      currentModel.rotation.y += deltaX * 0.005; // Adjust rotation speed factor as needed
+      touchStartX = event.touches[0].clientX;
+    }
+  });
+
+  renderer.domElement.addEventListener('touchend', () => {
+    rotating = false;
+  });
 
 
         document.body.appendChild(button);
