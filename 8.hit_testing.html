@@ -70,7 +70,8 @@
           });
           
           container.appendChild(renderer.domElement);
-          xrGestures = new XRGestures(renderer);
+          // Initialize XRGestures
+         this.xrGestures = new XRGestures(this.renderer);
   
           // Ambient light for overall illumination
           var ambientLight = new THREE.AmbientLight(0xcadeed, 1.5);
@@ -88,22 +89,21 @@
   
           addReticleToScene();
   
-
-  
-  
-          xrGestures.addEventListener('rotate', (event) => {
-            if (currentModel) {
-              // Apply rotation based on the theta value from the event
-              currentModel.rotation.y += event.theta;
-            }
+          this.xrGestures.addEventListener('pinch', (event) => {
+              // Handle pinch gesture
+              // Example: Scale your model
+              if (currentModel && event.scale !== undefined) {
+                  const scale = currentModel.scale.x * event.scale;
+                  currentModel.scale.set(scale, scale, scale);
+              }
           });
-  
-          xrGestures.addEventListener('pinch', (event) => {
-            if (currentModel) {
-              // Apply scaling based on the scale value from the event
-              const scale = currentModel.scale.x * event.scale;
-              currentModel.scale.set(scale, scale, scale);
-            }
+
+          this.xrGestures.addEventListener('rotate', (event) => {
+              // Handle rotate gesture
+              // Example: Rotate your model
+              if (currentModel && event.theta !== undefined) {
+                  currentModel.rotation.y += event.theta;
+              }
           });
 
           document.body.appendChild(button);
