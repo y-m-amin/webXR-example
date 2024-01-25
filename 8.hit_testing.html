@@ -8,316 +8,7 @@
     <link type="text/css" rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r126/three.js" crossorigin="anonymous"></script>
     <script src="https://unpkg.com/three@0.126.0/examples/js/loaders/GLTFLoader.js"></script>
-    <script type="module">
 
-      let currentModel = null;
-      let arSessionActive = false; // State to track AR session
-
-      // In this example you should be able to place a cone on top of a surface (like a floor or table)
-      // On your phone, you have to tap the screen to place a phone where the circle shows up
-      // On the desktop emulator you have to "right-click" to simulate a tap
-      
-      import { ARButton } from "https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js";
-      let myModel;
-      let container;
-      let camera, scene, renderer;
-      let reticle;
-      let controller;
-      let loader; // we need to create a variable for a gltf model loader
-      let modelLoaded = false; 
-
-      init();
-
-      animate();
-      
-      import { XRGestures } from './libs/XRGestures.js';
-      const xrGestures = new XRGestures(renderer);
-      function init() {
-        container = document.createElement("div");
-        document.body.appendChild(container);
-
-        scene = new THREE.Scene();
-
-        camera = new THREE.PerspectiveCamera(
-          70,
-          window.innerWidth / window.innerHeight,
-          0.01,
-          20
-        );
-
-         
-
-        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
-        container.appendChild(renderer.domElement);
-
-        // Ambient light for overall illumination
-        var ambientLight = new THREE.AmbientLight(0xcadeed, 1.5);
-        scene.add(ambientLight);
-
-        // Directional light for sunlight
-        var directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
-        directionalLight.position.set(0.5, 2, 0.3);
-        scene.add(directionalLight);
-
-        controller = renderer.xr.getController(0);
-        controller.addEventListener('select', onSelect);
-        
-        scene.add(controller);
-
-        addReticleToScene();
-
-        const button = ARButton.createButton(renderer, {
-          requiredFeatures: ["hit-test"] // notice a new required feature
-        });
-
-
-        xrGestures.addEventListener('rotate', (event) => {
-          if (currentModel) {
-            // Apply rotation based on the theta value from the event
-            currentModel.rotation.y += event.theta;
-          }
-        });
-
-        xrGestures.addEventListener('pinch', (event) => {
-          if (currentModel) {
-            // Apply scaling based on the scale value from the event
-            const scale = currentModel.scale.x * event.scale;
-            currentModel.scale.set(scale, scale, scale);
-          }
-        });
-
-            // Touch interaction for model rotation
-            let touchStartX = 0;
-          let rotating = false;
-          renderer.xr.addEventListener('touchstart', (event) => {
-            // Check if the touchstart event is on the model
-            // This requires raycasting to determine if the model was touched
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2(
-              (event.touches[0].clientX / window.innerWidth) * 2 - 1,
-              -(event.touches[0].clientY / window.innerHeight) * 2 + 1
-            );
-
-            raycaster.setFromCamera(mouse, camera);
-            const intersects = raycaster.intersectObject(currentModel, true);
-
-            if (intersects.length > 0) {
-              touchStartX = event.touches[0].clientX;
-              rotating = true;
-            }
-          });
-
-          renderer.xr.addEventListener('touchmove', (event) => {
-            if (rotating && currentModel) {
-              const deltaX = event.touches[0].clientX - touchStartX;
-              currentModel.rotation.y += deltaX * 0.005; // Adjust rotation speed factor as needed
-              touchStartX = event.touches[0].clientX;
-            }
-          });
-
-          renderer.xr.addEventListener('touchend', () => {
-            rotating = false;
-          });
-
-
-        document.body.appendChild(button);
-        renderer.domElement.style.display = "none";
-
-
-        renderer.xr.addEventListener('sessionstart', () => {
-          console.log("sessionstart triggered");
-          document.getElementById('modelSelector').style.display = 'block';
-          arSessionActive = true;
-          updateDropdownVisibility();
-        });
-        
-        renderer.xr.addEventListener('sessionend', () => {
-          console.log("sessionend triggered");
-          document.getElementById('modelSelector').style.display = 'none';
-          arSessionActive = false;
-          updateDropdownVisibility();
-
-          if (currentModel) {
-            scene.remove(currentModel);
-            currentModel = null; // Reset the currentModel variable
-          }
-        });
-
-
-        window.addEventListener("resize", onWindowResize, false);
-
-         // specify a model URL
-      //const modelUrl = './aunkur.glb';
-      
-			// create a GLTF loader object. GLTF is a 3D model format usually called the "JPEG of 3D" because it is
-      // fast and efficient to use, which is ideal for the web
-			loader = new THREE.GLTFLoader();
-      
-
-      }
-
-      let initialDropdownDisplay = window.getComputedStyle(modelSelector).display;
-      function updateDropdownVisibility() {
-        const modelSelector = document.getElementById('modelSelector');
-        
-        console.log("Dropdown visibility:", arSessionActive ? "Show" : "Hide");  // Add this log
-        console.log("Dropdown display style:", modelSelector.style.display);  // Add this log
-        if (arSessionActive) {
-          modelSelector.style.display = 'block'; // Show dropdown
-        } else {
-          modelSelector.style.display = initialDropdownDisplay; // Hide dropdown
-        }
-      }
-
-      function addReticleToScene() {
-        const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 32).rotateX(
-          -Math.PI / 2
-        );
-        const material = new THREE.MeshBasicMaterial();
-
-        reticle = new THREE.Mesh(geometry, material);
-
-        // we will calculate the position and rotation of this reticle every frame manually
-        // in the render() function so matrixAutoUpdate is set to false
-        reticle.matrixAutoUpdate = false;
-        reticle.visible = false; // we start with the reticle not visible
-        scene.add(reticle);
-
-        // optional axis helper you can add to an object
-        // reticle.add(new THREE.AxesHelper(1));
-      }
-
-      function onSelect() {
-      if (reticle.visible) {
-        const selectedModel = document.getElementById('modelSelector').value;
-        loadModel(selectedModel);
-        }
-      }
-
-      function onWindowResize() {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-
-        renderer.setSize(window.innerWidth, window.innerHeight);
-      }
-
-      function loadModel(modelName) {
-      if (currentModel) {
-        scene.remove(currentModel);
-      }
-
-      loader.load(
-        modelName,
-        function (gltf) {
-          currentModel = gltf.scene;
-          currentModel.scale.set(0.1, 0.1, 0.1); // Scale the model to 0.1
-
-          currentModel.position.setFromMatrixPosition(reticle.matrix);
-          currentModel.quaternion.setFromRotationMatrix(reticle.matrix);
-          scene.add(currentModel);
-        },
-        undefined,
-        function (error) {
-          console.error(error);
-        }
-       );
-      }
-
-      function animate() {
-        renderer.setAnimationLoop((timestamp, frame) => {
-          xrGestures.update(); // Update gestures
-          render(timestamp, frame);
-        });
-       
-      }
-
-      // read more about hit testing here:
-      // https://github.com/immersive-web/hit-test/blob/master/hit-testing-explainer.md
-      // https://web.dev/ar-hit-test/
-
-      // hit testing provides the position and orientation of the intersection point, but nothing about the surfaces themselves.
-
-      let hitTestSource = null;
-      let localSpace = null;
-      let hitTestSourceInitialized = false;
-
-      // This function gets called just once to initialize a hitTestSource
-      // The purpose of this function is to get a) a hit test source and b) a reference space
-      async function initializeHitTestSource() {
-        const session = renderer.xr.getSession(); // XRSession
-        
-        // Reference spaces express relationships between an origin and the world.
-
-        // For hit testing, we use the "viewer" reference space,
-        // which is based on the device's pose at the time of the hit test.
-        const viewerSpace = await session.requestReferenceSpace("viewer");
-        hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
-
-        // We're going to use the reference space of "local" for drawing things.
-        // which gives us stability in terms of the environment.
-        // read more here: https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpace
-        localSpace = await session.requestReferenceSpace("local");
-
-        // set this to true so we don't request another hit source for the rest of the session
-        hitTestSourceInitialized = true;
-        
-        // In case we close the AR session by hitting the button "End AR"
-        session.addEventListener("end", () => {
-          hitTestSourceInitialized = false;
-          hitTestSource = null;
-        });
-      }
-
-      // the callback from 'setAnimationLoop' can also return a timestamp
-      // and an XRFrame, which provides access to the information needed in
-      // order to render a single frame of animation for an XRSession describing
-      // a VR or AR sccene.
-      function render(timestamp, frame) {
-        if (frame) {
-          
-          
-          updateDropdownVisibility();
-          if (window.innerWidth < 1080) {
-            document.getElementById('modelSelector').classList.add('mobile-dropdown');
-            }
-          console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);
-          console.log("AR session active:", arSessionActive);  // Add this log
-          console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);  // Add this log
-
-          // 1. create a hit test source once and keep it for all the frames
-          // this gets called only once
-          if (!hitTestSourceInitialized) {
-            initializeHitTestSource();
-          }
-
-          
-
-          // 2. get hit test results
-          if (hitTestSourceInitialized) {
-            // we get the hit test results for a particular frame
-            const hitTestResults = frame.getHitTestResults(hitTestSource);
-
-            // XRHitTestResults The hit test may find multiple surfaces. The first one in the array is the one closest to the camera.
-            if (hitTestResults.length > 0) {
-              const hit = hitTestResults[0];
-              // Get a pose from the hit test result. The pose represents the pose of a point on a surface.
-              const pose = hit.getPose(localSpace);
-
-              reticle.visible = true;
-              // Transform/move the reticle image to the hit test position
-              reticle.matrix.fromArray(pose.transform.matrix);
-            } else {
-              reticle.visible = false;
-            }
-          }
-          
-          renderer.render(scene, camera);
-        }
-      }
-    </script>
   </head>
 
   <body>
@@ -328,7 +19,318 @@
         <option value="albatross.glb">Albatross</option>
         <option value="POS.glb">Aunkur POS</option>
       </select>
+      
 
+      <script type="module">
+
+        let currentModel = null;
+        let arSessionActive = false; // State to track AR session
+  
+        // In this example you should be able to place a cone on top of a surface (like a floor or table)
+        // On your phone, you have to tap the screen to place a phone where the circle shows up
+        // On the desktop emulator you have to "right-click" to simulate a tap
+        
+        import { ARButton } from "https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js";
+        let myModel;
+        let container;
+        let camera, scene, renderer;
+        let reticle;
+        let controller;
+        let loader; // we need to create a variable for a gltf model loader
+        let modelLoaded = false; 
+  
+        init();
+  
+        animate();
+        
+        import { XRGestures } from './libs/XRGestures.js';
+        const xrGestures = new XRGestures(renderer);
+        function init() {
+          container = document.createElement("div");
+          document.body.appendChild(container);
+  
+          scene = new THREE.Scene();
+  
+          camera = new THREE.PerspectiveCamera(
+            70,
+            window.innerWidth / window.innerHeight,
+            0.01,
+            20
+          );
+  
+           
+  
+          renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+          renderer.setPixelRatio(window.devicePixelRatio);
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.xr.enabled = true;
+          container.appendChild(renderer.domElement);
+  
+          // Ambient light for overall illumination
+          var ambientLight = new THREE.AmbientLight(0xcadeed, 1.5);
+          scene.add(ambientLight);
+  
+          // Directional light for sunlight
+          var directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+          directionalLight.position.set(0.5, 2, 0.3);
+          scene.add(directionalLight);
+  
+          controller = renderer.xr.getController(0);
+          controller.addEventListener('select', onSelect);
+          
+          scene.add(controller);
+  
+          addReticleToScene();
+  
+          const button = ARButton.createButton(renderer, {
+            requiredFeatures: ["hit-test"] // notice a new required feature
+          });
+  
+  
+          xrGestures.addEventListener('rotate', (event) => {
+            if (currentModel) {
+              // Apply rotation based on the theta value from the event
+              currentModel.rotation.y += event.theta;
+            }
+          });
+  
+          xrGestures.addEventListener('pinch', (event) => {
+            if (currentModel) {
+              // Apply scaling based on the scale value from the event
+              const scale = currentModel.scale.x * event.scale;
+              currentModel.scale.set(scale, scale, scale);
+            }
+          });
+  
+              // Touch interaction for model rotation
+              let touchStartX = 0;
+            let rotating = false;
+            renderer.xr.addEventListener('touchstart', (event) => {
+              // Check if the touchstart event is on the model
+              // This requires raycasting to determine if the model was touched
+              const raycaster = new THREE.Raycaster();
+              const mouse = new THREE.Vector2(
+                (event.touches[0].clientX / window.innerWidth) * 2 - 1,
+                -(event.touches[0].clientY / window.innerHeight) * 2 + 1
+              );
+  
+              raycaster.setFromCamera(mouse, camera);
+              const intersects = raycaster.intersectObject(currentModel, true);
+  
+              if (intersects.length > 0) {
+                touchStartX = event.touches[0].clientX;
+                rotating = true;
+              }
+            });
+  
+            renderer.xr.addEventListener('touchmove', (event) => {
+              if (rotating && currentModel) {
+                const deltaX = event.touches[0].clientX - touchStartX;
+                currentModel.rotation.y += deltaX * 0.005; // Adjust rotation speed factor as needed
+                touchStartX = event.touches[0].clientX;
+              }
+            });
+  
+            renderer.xr.addEventListener('touchend', () => {
+              rotating = false;
+            });
+  
+  
+          document.body.appendChild(button);
+          renderer.domElement.style.display = "none";
+  
+  
+          renderer.xr.addEventListener('sessionstart', () => {
+            console.log("sessionstart triggered");
+            document.getElementById('modelSelector').style.display = 'block';
+            arSessionActive = true;
+            updateDropdownVisibility();
+          });
+          
+          renderer.xr.addEventListener('sessionend', () => {
+            console.log("sessionend triggered");
+            document.getElementById('modelSelector').style.display = 'none';
+            arSessionActive = false;
+            updateDropdownVisibility();
+  
+            if (currentModel) {
+              scene.remove(currentModel);
+              currentModel = null; // Reset the currentModel variable
+            }
+          });
+  
+  
+          window.addEventListener("resize", onWindowResize, false);
+  
+           // specify a model URL
+        //const modelUrl = './aunkur.glb';
+        
+        // create a GLTF loader object. GLTF is a 3D model format usually called the "JPEG of 3D" because it is
+        // fast and efficient to use, which is ideal for the web
+        loader = new THREE.GLTFLoader();
+        
+  
+        }
+  
+        let initialDropdownDisplay = window.getComputedStyle(modelSelector).display;
+        function updateDropdownVisibility() {
+          const modelSelector = document.getElementById('modelSelector');
+          
+          console.log("Dropdown visibility:", arSessionActive ? "Show" : "Hide");  // Add this log
+          console.log("Dropdown display style:", modelSelector.style.display);  // Add this log
+          if (arSessionActive) {
+            modelSelector.style.display = 'block'; // Show dropdown
+          } else {
+            modelSelector.style.display = initialDropdownDisplay; // Hide dropdown
+          }
+        }
+  
+        function addReticleToScene() {
+          const geometry = new THREE.RingBufferGeometry(0.15, 0.2, 32).rotateX(
+            -Math.PI / 2
+          );
+          const material = new THREE.MeshBasicMaterial();
+  
+          reticle = new THREE.Mesh(geometry, material);
+  
+          // we will calculate the position and rotation of this reticle every frame manually
+          // in the render() function so matrixAutoUpdate is set to false
+          reticle.matrixAutoUpdate = false;
+          reticle.visible = false; // we start with the reticle not visible
+          scene.add(reticle);
+  
+          // optional axis helper you can add to an object
+          // reticle.add(new THREE.AxesHelper(1));
+        }
+  
+        function onSelect() {
+        if (reticle.visible) {
+          const selectedModel = document.getElementById('modelSelector').value;
+          loadModel(selectedModel);
+          }
+        }
+  
+        function onWindowResize() {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+  
+          renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+  
+        function loadModel(modelName) {
+        if (currentModel) {
+          scene.remove(currentModel);
+        }
+  
+        loader.load(
+          modelName,
+          function (gltf) {
+            currentModel = gltf.scene;
+            currentModel.scale.set(0.1, 0.1, 0.1); // Scale the model to 0.1
+  
+            currentModel.position.setFromMatrixPosition(reticle.matrix);
+            currentModel.quaternion.setFromRotationMatrix(reticle.matrix);
+            scene.add(currentModel);
+          },
+          undefined,
+          function (error) {
+            console.error(error);
+          }
+         );
+        }
+  
+        function animate() {
+          renderer.setAnimationLoop((timestamp, frame) => {
+            xrGestures.update(); // Update gestures
+            render(timestamp, frame);
+          });
+         
+        }
+  
+        // read more about hit testing here:
+        // https://github.com/immersive-web/hit-test/blob/master/hit-testing-explainer.md
+        // https://web.dev/ar-hit-test/
+  
+        // hit testing provides the position and orientation of the intersection point, but nothing about the surfaces themselves.
+  
+        let hitTestSource = null;
+        let localSpace = null;
+        let hitTestSourceInitialized = false;
+  
+        // This function gets called just once to initialize a hitTestSource
+        // The purpose of this function is to get a) a hit test source and b) a reference space
+        async function initializeHitTestSource() {
+          const session = renderer.xr.getSession(); // XRSession
+          
+          // Reference spaces express relationships between an origin and the world.
+  
+          // For hit testing, we use the "viewer" reference space,
+          // which is based on the device's pose at the time of the hit test.
+          const viewerSpace = await session.requestReferenceSpace("viewer");
+          hitTestSource = await session.requestHitTestSource({ space: viewerSpace });
+  
+          // We're going to use the reference space of "local" for drawing things.
+          // which gives us stability in terms of the environment.
+          // read more here: https://developer.mozilla.org/en-US/docs/Web/API/XRReferenceSpace
+          localSpace = await session.requestReferenceSpace("local");
+  
+          // set this to true so we don't request another hit source for the rest of the session
+          hitTestSourceInitialized = true;
+          
+          // In case we close the AR session by hitting the button "End AR"
+          session.addEventListener("end", () => {
+            hitTestSourceInitialized = false;
+            hitTestSource = null;
+          });
+        }
+  
+        // the callback from 'setAnimationLoop' can also return a timestamp
+        // and an XRFrame, which provides access to the information needed in
+        // order to render a single frame of animation for an XRSession describing
+        // a VR or AR sccene.
+        function render(timestamp, frame) {
+          if (frame) {
+            
+            
+            updateDropdownVisibility();
+            if (window.innerWidth < 1080) {
+              document.getElementById('modelSelector').classList.add('mobile-dropdown');
+              }
+            console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);
+            console.log("AR session active:", arSessionActive);  // Add this log
+            console.log("Dropdown display style:", document.getElementById('modelSelector').style.display);  // Add this log
+  
+            // 1. create a hit test source once and keep it for all the frames
+            // this gets called only once
+            if (!hitTestSourceInitialized) {
+              initializeHitTestSource();
+            }
+  
+            
+  
+            // 2. get hit test results
+            if (hitTestSourceInitialized) {
+              // we get the hit test results for a particular frame
+              const hitTestResults = frame.getHitTestResults(hitTestSource);
+  
+              // XRHitTestResults The hit test may find multiple surfaces. The first one in the array is the one closest to the camera.
+              if (hitTestResults.length > 0) {
+                const hit = hitTestResults[0];
+                // Get a pose from the hit test result. The pose represents the pose of a point on a surface.
+                const pose = hit.getPose(localSpace);
+  
+                reticle.visible = true;
+                // Transform/move the reticle image to the hit test position
+                reticle.matrix.fromArray(pose.transform.matrix);
+              } else {
+                reticle.visible = false;
+              }
+            }
+            
+            renderer.render(scene, camera);
+          }
+        }
+      </script>
    
   </body>
 </html>
