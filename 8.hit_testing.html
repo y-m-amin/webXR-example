@@ -72,6 +72,9 @@
 
         controller = renderer.xr.getController(0);
         controller.addEventListener('select', onSelect);
+        controller.addEventListener('touchstart');
+        controller.addEventListener('touchmove');
+        controller.addEventListener('touchend');
         scene.add(controller);
 
         addReticleToScene();
