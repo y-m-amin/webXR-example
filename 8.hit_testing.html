@@ -44,7 +44,7 @@
   
         animate();
         
-        
+        const xrGestures = new XRGestures(renderer);
         
         function init() {
           container = document.createElement("div");
@@ -68,7 +68,7 @@
           const button = ARButton.createButton(renderer, {
             requiredFeatures: ["hit-test"] // notice a new required feature
           });
-          const xrGestures = new XRGestures(renderer);
+          
           container.appendChild(renderer.domElement);
 
   
