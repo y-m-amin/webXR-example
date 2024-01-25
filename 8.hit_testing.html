@@ -31,6 +31,7 @@
         // On the desktop emulator you have to "right-click" to simulate a tap
         
         import { ARButton } from "https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js";
+        import { XRGestures } from './libs/XRGestures.js';
         let myModel;
         let container;
         let camera, scene, renderer;
@@ -43,7 +44,7 @@
   
         animate();
         
-        import { XRGestures } from './libs/XRGestures.js';
+        
         
         function init() {
           container = document.createElement("div");
