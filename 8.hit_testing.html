@@ -27,7 +27,7 @@
       // In this example you should be able to place a cone on top of a surface (like a floor or table)
       // On your phone, you have to tap the screen to place a phone where the circle shows up
       // On the desktop emulator you have to "right-click" to simulate a tap
-      import { XRGestures } from './lib/XRGestures.js';
+      
       import { ARButton } from "https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js";
       let myModel;
       let container;
@@ -38,9 +38,11 @@
       let modelLoaded = false; 
 
       init();
+      import { XRGestures } from './lib/XRGestures.js';
+      const xrGestures = new XRGestures(renderer);
       animate();
       
-      const xrGestures = new XRGestures(renderer);
+      
       function init() {
         container = document.createElement("div");
         document.body.appendChild(container);
