@@ -29,6 +29,9 @@
       // On your phone, you have to tap the screen to place a phone where the circle shows up
       // On the desktop emulator you have to "right-click" to simulate a tap
       import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader.js';
+      renderer.toneMapping = THREE.ACESFilmicToneMapping;
+      renderer.toneMappingExposure = 0.8;
+      renderer.outputEncoding = THREE.sRGBEncoding;
 
       import { ARButton } from "https://unpkg.com/three@0.126.0/examples/jsm/webxr/ARButton.js";
       let myModel;
@@ -62,9 +65,7 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.xr.enabled = true;
         container.appendChild(renderer.domElement);
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 0.8;
-        renderer.outputEncoding = THREE.sRGBEncoding;
+
 
         // Ambient light for overall illumination
         var ambientLight = new THREE.AmbientLight(0xcadeed, 1.5);
