@@ -65,9 +65,12 @@
           renderer.setPixelRatio(window.devicePixelRatio);
           renderer.setSize(window.innerWidth, window.innerHeight);
           renderer.xr.enabled = true;
+          const button = ARButton.createButton(renderer, {
+            requiredFeatures: ["hit-test"] // notice a new required feature
+          });
+          const xrGestures = new XRGestures(renderer);
           container.appendChild(renderer.domElement);
 
-          const xrGestures = new XRGestures(renderer);
   
           // Ambient light for overall illumination
           var ambientLight = new THREE.AmbientLight(0xcadeed, 1.5);
@@ -85,9 +88,7 @@
   
           addReticleToScene();
   
-          const button = ARButton.createButton(renderer, {
-            requiredFeatures: ["hit-test"] // notice a new required feature
-          });
+
   
   
           xrGestures.addEventListener('rotate', (event) => {
