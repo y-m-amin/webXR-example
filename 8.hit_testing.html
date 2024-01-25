@@ -217,9 +217,10 @@
   
         function animate() {
           renderer.setAnimationLoop((timestamp, frame) => {
-            if (xrGestures) {
-                xrGestures.update(); // Ensure xrGestures is defined before calling update
-            }
+                    // Update gestures
+              if (this.xrGestures) {
+                  this.xrGestures.update();
+              }
             render(timestamp, frame);
         });
          
